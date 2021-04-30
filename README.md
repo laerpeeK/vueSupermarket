@@ -1,5 +1,8 @@
 # supermarket
-
+```
+学习Vue2
+原创： http://github.com/coderwhy/Supermall
+```
 ## Project setup
 ```
 npm install
