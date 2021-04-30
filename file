@@ -2,6 +2,11 @@
   git remote add origin https://
   git push -u origin master
 
+1-2.git同步更新
+  git add .
+  git commit -m
+  git push
+
 2.css文件配置
 
 3.别名配置 vue.config.js->alias->@
