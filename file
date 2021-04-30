@@ -1,0 +1,12 @@
+1.github项目上传
+  git remote add origin https://
+  git push -u origin master
+
+2.css文件配置
+
+3.别名配置 vue.config.js->alias->@
+          .editorconfig
+
+4.
+
+
