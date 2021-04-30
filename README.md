@@ -1,5 +1,7 @@
 # supermarket
-
+```
+练习Vue2使用  
+```
 ## Project setup
 ```
 npm install
