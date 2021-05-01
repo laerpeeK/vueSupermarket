@@ -3,6 +3,7 @@
   git push -u origin master
 
 1-2.git同步更新
+  git pull
   git add .
   git commit -m
   git push
