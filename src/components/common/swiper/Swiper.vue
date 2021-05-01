@@ -1,12 +1,12 @@
 <template>
   <div id="hy-swiper">
-    <div class="swiper">
+    <div class="swiper" @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd">
       <slot></slot>
     </div>
     <slot name="indicator"></slot>
     <div class="indicator">
       <slot name="indicator" v-if="showIndicator && slideCount>1">
-        <div v-for="(item, index) in slideCount" class="indi-item" :class="{active: index === currentIndex-1}"></div>
+        <div v-for="(item, index) in slideCount" class="indi-item" :class="{active: index === currentIndex-1}" :key="index"></div>
       </slot>
     </div>
   </div>
@@ -50,7 +50,7 @@
 
         //2.开启定时器
         this.startTimer();
-      },3000)
+      },1000)
     },
     methods: {
       /*定时器操作*/
@@ -118,13 +118,82 @@
         if(this.slideCount >1) {
           let cloneFirst = slidesEls[0].cloneNode(true);
           let cloneLast = slidesEls[this.slideCount -1].cloneNode(true);
-          swiperEl.insertBefor(cloneLast, slidesEls[0]);
+          swiperEl.insertBefore(cloneLast, slidesEls[0]);
           swiperEl.appendChild(cloneFirst);
+          this.totalWidth = swiperEl.offsetWidth;
+          this.swiperStyle = swiperEl.style;
         }
 
         //4.让swiper元素，显示第一个（目前显示前面添加的最后一个元素）
         this.setTransform(-this.totalWidth);
       },
+
+      /*拖动事件的处理*/
+
+      touchStart(e) {
+
+        //1.如果正在滚动，不可拖动
+        if(this.scrolling) return;
+
+        //2.停止定时器
+        this.stopTimer();
+
+        //3.保存开始滚动的位置
+        this.startX = e.touches[0].pageX;
+      },
+
+      touchMove(e) {
+        //1.计算出用户滚动的距离
+        this.currentX = e.touches[0].pageX;
+        this.distance = this.currentX - this.startX;
+        let currentPosition = -this.currentIndex * this.totalWidth;
+        let moveDistance = this.distance + currentPosition;
+
+        //2.设置当前的位置
+        this.setTransform(moveDistance);
+      },
+
+      touchEnd(e) {
+        //1.获取移动的距离
+        let currentMove = Math.abs(this.distance);
+
+        //2.判断最终距离
+        if(this.distance === 0) {
+          return
+        } else if(this.distance > 0 && currentMove > this.totalWidth * this.moveRatio) {//右移超过0.5
+          this.currentIndex--
+        } else if(this.distance <0 && currentMove > this.totalWidth * this.moveRatio) {//左移超过0.5
+          this.currentIndex++
+        }
+        //3.移动到正确的位置
+        this.scrollContent(-this.currentIndex * this.totalWidth)
+
+        //4.移动完成后重新开启定时器
+        this.startTimer()
+      },
+
+      /**
+       * 控制上一个, 下一个
+       */
+      previous: function () {
+        this.changeItem(-1);
+      },
+
+      next: function () {
+        this.changeItem(1);
+      },
+
+      changeItem: function (num) {
+        // 1.移除定时器
+        this.stopTimer();
+
+        // 2.修改index和位置
+        this.currentIndex += num;
+        this.scrollContent(-this.currentIndex * this.totalWidth);
+
+        // 3.添加定时器
+        this.startTimer();
+      }
     }
   }
 </script>
@@ -145,5 +214,21 @@
     width: 100%;
     bottom: 8px;
 
+  }
+
+  .indi-item {
+    box-sizing: border-box;
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: #fff;
+    line-height: 8px;
+    text-align: center;
+    font-size: 12px;
+    margin: 0 5px;
+  }
+
+  .indi-item.active {
+    background-color: rgba(212,62,46,1.0);
   }
 </style>
