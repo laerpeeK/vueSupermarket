@@ -3,32 +3,32 @@
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
-    <Swiper>
-      <SwiperItem v-for="item in banner" :key="id">
-        <a :href="item.link">
-          <img :src="item.image" alt="">
-        </a>
-      </SwiperItem>
-    </Swiper>
+    <home-swiper :banner="banner" :id="id"></home-swiper>
+    <home-recommend-view :recommend="recommend" :id="id"></home-recommend-view>
   </div>
 </template>
 
 <script>
 import NavBar from "../../components/common/navbar/NavBar";
+import HomeSwiper from "./childComponents/HomeSwiper";
+import HomeRecommendView from './childComponents/HomeRecommendView'
+import HomeFeatureView from "./childComponents/HomeFeatureView";
+
 import {getHomeMultidata} from "../../network/home";
-import {Swiper,SwiperItem} from '../../components/common/swiper';
+
 
 export default {
   name: "Home",
   components:{
     NavBar,
-    Swiper,
-    SwiperItem
+    HomeSwiper,
+    HomeRecommendView
   },
   data() {
     return {
       banner:[],
-      recommend: []
+      recommend: [],
+      id: undefined
     }
   },
   created() {
@@ -37,6 +37,7 @@ export default {
           console.log(res);
           this.banner = res.data.banner.list;
           this.recommend = res.data.recommend.list;
+          this.id = res.data.id;
         }
     )
   }
