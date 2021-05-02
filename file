@@ -17,6 +17,13 @@
     文字不同不需要预留插槽
     注重代码思想
 
-5.
+5.component -> refs
+    this.$refs.refname 获取到组件对象
+  element -> refs
+    this.$refs.refname 获取到元素对象
+
+
+6.scoped 样式作用域
+
 
 
