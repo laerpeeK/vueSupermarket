@@ -6,9 +6,7 @@
     <scroll class="content"
             ref="scroll"
             :probe-type="3"
-            :pull-up-load="true"
             @scroll="contentScroll"
-            @pullingUp="loadMore"
     >
       <home-swiper :banner="banner" :id="id"></home-swiper>
       <home-recommend-view :recommend="recommend" :id="id"></home-recommend-view>
@@ -36,7 +34,6 @@ import {
     getHomeMultidata,
     getHomeGoods
 } from "../../network/home";
-
 
 export default {
   name: "Home",
@@ -72,6 +69,14 @@ export default {
     this.getHomeGoods('pop')
     this.getHomeGoods('new')
     this.getHomeGoods('sell')
+
+  },
+  mounted() {
+
+    const refresh = this.debounce(this.$refs.scroll.refresh);
+    this.$bus.$on('itemImageLoad', () => {
+      refresh();
+    })
   },
   computed: {
     showGoods() {
@@ -80,6 +85,16 @@ export default {
   },
   methods: {
     //事件监听相关
+    debounce(func, delay) {
+      let timer = null;
+      return function(...args) {
+        if(timer) clearTimeout(timer);
+        timer = setTimeout(()=>{
+          func.apply(this, args);
+        },delay);
+      }
+    },
+
     tabClick(index) {
       switch(index) {
         case 0:
@@ -123,11 +138,6 @@ export default {
             this.goods[type].page++;
           }
       )
-    },
-
-    loadMore() {
-      this.getHomeGoods(this.currentType);
-      this.$refs.scroll.finishPullUp();
     },
   }
 }

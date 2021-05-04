@@ -25,5 +25,15 @@
 
 6.scoped 样式作用域
 
+7.git解决方案
+    1.查找github地址更新hosts,再 ipconfig /dns刷新缓存
+
+8.事件总线：管理事件
+Vue.prototype.$bus = new Vue()
+this.$bus.$emit('event',params)
+this.$bus.$on('event',callback(params))
+
+
+
 
 
