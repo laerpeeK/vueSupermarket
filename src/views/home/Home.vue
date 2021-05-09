@@ -3,15 +3,27 @@
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
+    <tab-control
+        :titles="['流行','新款','精选']"
+        @tabClick="tabClick"
+        ref="tabControl1"
+        v-show="isTabFixed"
+    ></tab-control>
     <scroll class="content"
             ref="scroll"
             :probe-type="3"
             @scroll="contentScroll"
+            :pull-up-load="true"
+            @pullingUp="loadMore"
     >
-      <home-swiper :banner="banner" :id="id"></home-swiper>
+      <home-swiper :banner="banner" :id="id" @swiperImgLoad="swiperImgLoad"></home-swiper>
       <home-recommend-view :recommend="recommend" :id="id"></home-recommend-view>
       <home-feature-view></home-feature-view>
-      <tab-control :titles="['流行','新款','精选']" @tabClick="tabClick"></tab-control>
+      <tab-control
+          :titles="['流行','新款','精选']"
+          @tabClick="tabClick"
+          ref="tabControl2"
+      ></tab-control>
       <goods-list :goods="showGoods"></goods-list>
     </scroll>
     <back-top @click.native="backClick" v-show="isTabTopShow"/>
@@ -34,6 +46,8 @@ import {
     getHomeMultidata,
     getHomeGoods
 } from "../../network/home";
+
+import {debounce} from "common/util";
 
 export default {
   name: "Home",
@@ -58,7 +72,9 @@ export default {
         'sell': {page:0, list:[]},
       },
       currentType: 'pop',
-      isTabTopShow: false
+      isTabTopShow: false,
+      tabOffsetTop: 0,
+      isTabFixed: false
     }
   },
   created() {
@@ -72,11 +88,14 @@ export default {
 
   },
   mounted() {
-
-    const refresh = this.debounce(this.$refs.scroll.refresh);
+    //1.图片加载完成的事件监听
+    const refresh = debounce(this.$refs.scroll.refresh);
     this.$bus.$on('itemImageLoad', () => {
       refresh();
     })
+
+    //2.获取tabControl的offsetTop
+    //this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop;
   },
   computed: {
     showGoods() {
@@ -85,15 +104,6 @@ export default {
   },
   methods: {
     //事件监听相关
-    debounce(func, delay) {
-      let timer = null;
-      return function(...args) {
-        if(timer) clearTimeout(timer);
-        timer = setTimeout(()=>{
-          func.apply(this, args);
-        },delay);
-      }
-    },
 
     tabClick(index) {
       switch(index) {
@@ -109,6 +119,8 @@ export default {
         default:
           this.currentType = 'pop'
       }
+      this.$refs.tabControl1.currentIndex = index;
+      this.$refs.tabControl2.currentIndex = index;
     },
 
     backClick() {
@@ -117,6 +129,12 @@ export default {
 
     contentScroll(position) {
       this.isTabTopShow = Math.abs(position.y) > 1000? true: false;
+
+      this.isTabFixed = Math.abs(position.y) > this.tabOffsetTop? true: false
+    },
+
+    swiperImgLoad() {
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop
     },
 
     //网络请求相关
@@ -139,6 +157,11 @@ export default {
           }
       )
     },
+
+    loadMore() {
+      this.getHomeGoods(this.currentType)
+      this.$refs.scroll.finishPullUp();
+    }
   }
 }
 </script>
@@ -153,12 +176,6 @@ export default {
   .home-nav {
     background-color: var(--color-tint);
     color: #fff;
-
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: 0;
-    z-index: 1;
   }
 
   .content {
@@ -169,4 +186,5 @@ export default {
     left: 0;
     right: 0;
   }
+
 </style>
