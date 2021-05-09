@@ -74,7 +74,8 @@ export default {
       currentType: 'pop',
       isTabTopShow: false,
       tabOffsetTop: 0,
-      isTabFixed: false
+      isTabFixed: false,
+      saveY: 0
     }
   },
   created() {
@@ -96,6 +97,13 @@ export default {
 
     //2.获取tabControl的offsetTop
     //this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop;
+  },
+  activated() {
+    this.$refs.scroll.scrollTo(0,this.saveY,0)
+    this.$refs.scroll.refresh()
+  },
+  deactivated() {
+    this.saveY = this.$refs.scroll.getScrollY();
   },
   computed: {
     showGoods() {
