@@ -8,3 +8,9 @@ export function getDetail(iid) {
         },
     })
 }
+
+class Goods {
+    constructor(itemInfo, column) {
+
+    }
+}
