@@ -1,7 +1,7 @@
 <template>
     <div class="goods-item">
       <img
-          :src="goodsItem.show.img"
+          :src="showImage"
            alt=""
           @load="imageLoad"
           @click="itemClick">
@@ -22,6 +22,11 @@ export default {
       default() {
         return {}
       }
+    }
+  },
+  computed: {
+    showImage() {
+      return this.goodsItem.image || this.goodsItem.show.img
     }
   },
   methods: {
