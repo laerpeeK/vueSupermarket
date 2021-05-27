@@ -1,14 +1,14 @@
 <template>
   <div id="detail">
-    <detail-nav-bar class="detail-nav"/>
+    <detail-nav-bar class="detail-nav" @titleClick="titleClick"/>
     <scroll class="content" ref="scroll">
       <detail-swiper :top-images="topImages" />
       <detail-base-info :goods="goods" />
       <detail-shop-info :shop="shop" />
       <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad"/>
-      <detail-param-info :param-info="paramInfo"/>
+      <detail-param-info :param-info="paramInfo" ref="params"/>
       <detail-comment-info ref="comment" :comment-info="commentInfo"></detail-comment-info>
-      <goods-list :goods="recommends"/>
+      <goods-list :goods="recommends" ref="recommend"/>
     </scroll>
   </div>
 </template>
@@ -27,6 +27,7 @@ import GoodsList from "../../components/content/goodsList/GoodsList";
 
 import {getDetail, Goods, Shop, GoodsParam, getRecommend} from "../../network/detail";
 import GoodsListItem from "../../components/content/goodsList/GoodsListItem";
+import {itemListenerMixin} from "../../common/mixin";
 import {debounce} from "../../common/util";
 
 export default {
@@ -43,6 +44,7 @@ export default {
       DetailCommentInfo,
       GoodsList
     },
+  mixins: [itemListenerMixin],
   data(){
     return {
       id: null,
@@ -53,7 +55,7 @@ export default {
       paramInfo: {},
       commentInfo: {},
       recommends: [],
-      itemImgListener: null
+      themeTopYs:[]
     }
   },
   created() {
@@ -77,6 +79,7 @@ export default {
           if (data.rate.list) {
             this.commentInfo = data.rate.list[0];
           }
+
         }
     )
     getRecommend().then(
@@ -84,18 +87,27 @@ export default {
           this.recommends = res.data.list
         }
     )
+    this.getThemeTopY = debounce(()=>{
+      this.themeTopYs = []
+      this.themeTopYs.push(0)
+      this.themeTopYs.push(this.$refs.params.$el.offsetTop)
+      this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
+      this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
+    },100)
   },
   methods: {
     imageLoad() {
+        this.getThemeTopY()
         this.$refs.scroll.refresh()
-      }
+      },
+    titleClick(index) {
+      console.log(index)
+      this.$refs.scroll.scrollTo(0,-this.themeTopYs[index],100)
     },
+  },
   mounted() {
-    const refresh = debounce(this.$refs.scroll.refresh,100);
-    this.itemImgListener = ()=> {
-      refresh()
-    }
-    this.$bus.$on('itemImgLoad', this.itemImgListener)
+  },
+  updated() {
   },
   destroyed() {
     this.$bus.$off('itemImgLoad', this.itemImgListener)

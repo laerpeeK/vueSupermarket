@@ -48,6 +48,7 @@ import {
 } from "../../network/home";
 
 import {debounce} from "common/util";
+import {itemListenerMixin} from "../../common/mixin";
 
 export default {
   name: "Home",
@@ -61,6 +62,7 @@ export default {
     GoodsList,
     BackTop
   },
+  mixins: [itemListenerMixin],
   data() {
     return {
       banner:[],
@@ -76,7 +78,6 @@ export default {
       tabOffsetTop: 0,
       isTabFixed: false,
       saveY: 0,
-      itemImgListener: null
     }
   },
   created() {
@@ -91,11 +92,7 @@ export default {
   },
   mounted() {
     //1.图片加载完成的事件监听
-    const refresh = debounce(this.$refs.scroll.refresh);
-    this.itemImgListener = ()=> {
-      refresh()
-    }
-    this.$bus.$on('itemImageLoad', this.itemImgListener)
+
 
     //2.获取tabControl的offsetTop
     //this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop;
